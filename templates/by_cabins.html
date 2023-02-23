@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="lol">
+        {% set number = 'Каюта №' %}
+        {% for user in sp %}
+        <H2>{{user}} - {{number}} {{ loop.index }}
+            {% if loop.first %}
+             - капитан корабля
+            {% endif %}</H2>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block style_block %}
+    <link rel="stylesheet" type="text/css" href={{style}} />
+{% endblock %}
+
+{% block title_block %}
+    Распределение
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="lol">
+        <h2 class="kayota">Оформление каюты</h2>
+        <table>
+          <tr class="first_tr">
+            <td class="colorik">Цвет стены</td>
+            <td class="photik">Фото пассажира</td>
+          </tr>
+          <tr>
+            <td><img src={{wall}} width="360" height="600"></td>
+            <td><img src={{photo}} width="360" height="600"></td>
+          </tr>
+        </table>
+    </div>
+{% endblock %}
+
+{% block style_block %}
+    <link rel="stylesheet" type="text/css" href={{style}} />
+{% endblock %}
+
+{% block title_block %}
+    Расселение по каютам
+{% endblock %}
