@@ -5,14 +5,20 @@
     <h3 class="works_log">Works Log</h3>
     {% for job in jobs %}
         <h4>Action # {{loop.index}}</h4>
-        <table>
-
+        <table class="job_table">
             <tr class="cap">
                 <td width="400px" height="20px">Title of activity</td>
                 <td width="100px" height="20px">Team leader</td>
                 <td width="80px" height="20px">Duration</td>
                 <td width="200px" height="20px">List of collaborators</td>
                 <td width="80px" height="30px">Is finished</td>
+            </tr>
+            <tr class="info">
+                <td width="400px" height="20px">{{job[0]}}</td>
+                <td width="100px" height="20px">{{job[1]}}</td>
+                <td width="80px" height="20px">{{job[2]}}</td>
+                <td width="200px" height="20px">{{job[3]}}</td>
+                <td width="80px" height="30px" class="is_finished_info">{{job[4]}}</td>
             </tr>
         </table>
     {% endfor %}

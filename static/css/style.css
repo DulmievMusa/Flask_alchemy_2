@@ -12,6 +12,18 @@
 }
 
 .apple {
-    margin-left: 20px
+    margin-left: 20px;
+    color: #B6B6B4;
 }
 
+.info {
+    background-color: #98AFC7;
+}
+
+.is_finished_info {
+    background-color: #ffb6c1;
+}
+
+.job_table {
+    margin-bottom: 20px;
+}
