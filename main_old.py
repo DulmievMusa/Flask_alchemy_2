@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request, abort
 from data import db_session
 from data.new_user import User
 from data.jobs import Jobs
@@ -87,6 +87,45 @@ def addjob():
         return redirect('/')
     return render_template('add_job.html', title='Adding job', form=form,
                            style=url_for('static', filename='css/style.css'))
+
+
+@app.route('/editjob/<int:id>', methods=['GET', 'POST'])
+def editjob(id):
+    db_session.global_init('db/blogs.db')
+    db_sess = db_session.create_session()
+    form = AddJobForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        job = db_sess.query(Jobs).filter(Jobs.id == id,
+                                          (Jobs.team_leader == current_user.id) | (Jobs.team_leader == 1)
+                                          ).first()
+        if job:
+            form.job.data = job.job
+            form.teamleader_id.data = job.team_leader
+            form.work_size.data = job.work_size
+            form.collaborators.data = job.collaborators
+            form.is_finished.data = job.is_finished
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        job = db_sess.query(Jobs).filter(Jobs.id == id,
+                                          (Jobs.team_leader == current_user.id) | (Jobs.team_leader == 1)
+                                          ).first()
+        if job:
+            job.job = form.job.data
+            job.team_leader = form.teamleader_id.data
+            job.work_size = form.work_size.data
+            job.collaborators = form.collaborators.data
+            job.is_finished = form.is_finished.data
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('add_job.html',
+                           title='Edit job',
+                           form=form
+                           )
 
 
 @app.route('/success')
