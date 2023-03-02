@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for
 from data import db_session
-from data.users import User
+from data.new_user import User
 from data.news import News
 from forms.user import RegisterForm
 from loginform import LoginForm
@@ -23,28 +23,38 @@ def index():
 
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
+    db_session.global_init('db/blogs.db')
+    db_sess = db_session.create_session()
     form = RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Пароли не совпадают")
+            return render_template('register.html', title='Регистрация', form=form,
+                           style=url_for('static', filename='css/style.css'), message="Пароли не совпадают")
+
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Такой пользователь уже есть")
+            return render_template('register.html', title='Регистрация', form=form,
+                           style=url_for('static', filename='css/style.css'), message="Такой пользователь уже есть")
         user = User(
+            surname=form.surname.data,
             name=form.name.data,
+            age=form.age.data,
+            position=form.position.data,
+            speciality=form.speciality.data,
+            address=form.address.data,
             email=form.email.data,
-            about=form.about.data
         )
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
-        print(1)
-        return redirect('/login')
-    return render_template('register.html', title='Регистрация', form=form)
+        return redirect('/success')
+    return render_template('register.html', title='Регистрация', form=form,
+                           style=url_for('static', filename='css/style.css'))
+
+
+@app.route('/success')
+def success():
+   return 'logged in successfully'
 
 
 @app.route('/training/<prof>')
@@ -67,11 +77,6 @@ def login():
 def list_prof(lis):
     sp = ['Медик', 'Инженер', 'Учёный', 'Болтун', 'Шут']
     return render_template('index.html', sp=sp, arg=lis, style=url_for('static', filename='css/style.css'))
-
-
-@app.route('/success')
-def success():
-   return 'logged in successfully'
 
 
 @app.route('/answer')
