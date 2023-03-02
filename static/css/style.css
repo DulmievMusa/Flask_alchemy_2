@@ -27,3 +27,12 @@
 .job_table {
     margin-bottom: 20px;
 }
+
+.add_job {
+    margin-left: 50px;
+}
+
+p {
+    width: 600px;
+    margin-bottom: 1px;
+}

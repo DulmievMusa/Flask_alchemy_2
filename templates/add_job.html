@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="add_job">
+        <h1>Adding a Job</h1>
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.job.label }}<br>
+                {{ form.job(class="form-control form-control-sm") }}<br>
+                {% for error in form.job.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.teamleader_id.label }}<br>
+                {{ form.teamleader_id(class="form-control form-control-sm") }}<br>
+                {% for error in form.teamleader_id.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.work_size.label }}<br>
+                {{ form.work_size(class="form-control form-control-sm") }}<br>
+                {% for error in form.work_size.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.collaborators.label }}<br>
+                {{ form.collaborators(class="form-control form-control-sm") }}<br>
+                {% for error in form.collaborators.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </p>
+
+            <p>{{ form.is_finished() }} {{ form.is_finished.label }}</p>
+            <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+            <div>{{ message }}</div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block style_block %}
+    <link rel="stylesheet" type="text/css" href={{style}} />
+{% endblock %}
+
+{% block title_block %}
+    adding work
+{% endblock %}

@@ -1,12 +1,24 @@
 from flask import Flask, render_template, redirect, url_for
 from data import db_session
 from data.new_user import User
-from data.news import News
+from data.jobs import Jobs
 from forms.user import RegisterForm
+from addjobs_form import AddJobForm
 from loginform import LoginForm
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+login_manager = LoginManager()
+login_manager.init_app(app)
+db_session.global_init('db/blogs.db')
+db_sess = db_session.create_session()
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    db_sess = db_session.create_session()
+    return db_sess.query(User).get(user_id)
 
 
 def main():
@@ -16,9 +28,13 @@ def main():
 
 @app.route("/")
 def index():
-    db_sess = db_session.create_session()
-    news = db_sess.query(News).filter(News.is_private != True)
-    return render_template("index.html", news=news)
+    jobs = []
+    for job in db_sess.query(Jobs).all():
+        user = db_sess.query(User).filter(User.id == job.team_leader).first()
+        name = user.surname + ' ' + user.name
+        jobs.append((job.job, name, f'{job.work_size} hours', job.collaborators,
+                     'Is finished' if job.is_finished else 'Is not finished'))
+    return render_template("index.html", style=url_for('static', filename='css/style.css'), jobs=jobs)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -52,6 +68,27 @@ def reqister():
                            style=url_for('static', filename='css/style.css'))
 
 
+@app.route('/addjob', methods=['GET', 'POST'])
+def addjob():
+    db_session.global_init('db/blogs.db')
+    db_sess = db_session.create_session()
+    form = AddJobForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        job = Jobs(
+            team_leader=form.teamleader_id.data,
+            job=form.job.data,
+            work_size=form.work_size.data,
+            collaborators=form.collaborators.data,
+            is_finished=form.is_finished.data
+        )
+        db_sess.add(job)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('add_job.html', title='Adding job', form=form,
+                           style=url_for('static', filename='css/style.css'))
+
+
 @app.route('/success')
 def success():
    return 'logged in successfully'
@@ -68,9 +105,15 @@ def training(prof):
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        return redirect('/success')
-    return render_template('login.html', form=form, style=url_for('static', filename='css/style.css'),
-                           log_image=url_for('static', filename='img/mars_emblem.png'))
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=form.remember_me.data)
+            return redirect("/")
+        return render_template('login.html',
+                               message="Неправильный логин или пароль",
+                               form=form)
+    return render_template('login.html', title='Авторизация', form=form)
 
 
 @app.route('/list_prof/<lis>')
@@ -93,6 +136,13 @@ def answer():
         'style': url_for('static', filename='css/style.css')
     }
     return render_template('auto_answer.html', **params)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
 
 
 @app.route('/auto_answer')
