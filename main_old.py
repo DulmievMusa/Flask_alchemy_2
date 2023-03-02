@@ -33,7 +33,9 @@ def index():
         user = db_sess.query(User).filter(User.id == job.team_leader).first()
         name = user.surname + ' ' + user.name
         jobs.append((job.job, name, f'{job.work_size} hours', job.collaborators,
-                     'Is finished' if job.is_finished else 'Is not finished'))
+                     'Is finished' if job.is_finished else 'Is not finished',
+                     current_user.is_authenticated and (job.team_leader == current_user.id or current_user.id == 1),
+                     job.id))
     return render_template("index.html", style=url_for('static', filename='css/style.css'), jobs=jobs)
 
 
@@ -90,6 +92,7 @@ def addjob():
 
 
 @app.route('/editjob/<int:id>', methods=['GET', 'POST'])
+@login_required
 def editjob(id):
     db_session.global_init('db/blogs.db')
     db_sess = db_session.create_session()
@@ -97,8 +100,8 @@ def editjob(id):
     if request.method == "GET":
         db_sess = db_session.create_session()
         job = db_sess.query(Jobs).filter(Jobs.id == id,
-                                          (Jobs.team_leader == current_user.id) | (Jobs.team_leader == 1)
-                                          ).first()
+                                         (Jobs.team_leader == current_user.id) | (current_user.id == 1)
+                                         ).first()
         if job:
             form.job.data = job.job
             form.teamleader_id.data = job.team_leader
@@ -110,8 +113,8 @@ def editjob(id):
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         job = db_sess.query(Jobs).filter(Jobs.id == id,
-                                          (Jobs.team_leader == current_user.id) | (Jobs.team_leader == 1)
-                                          ).first()
+                                         (Jobs.team_leader == current_user.id) | (current_user.id == 1)
+                                         ).first()
         if job:
             job.job = form.job.data
             job.team_leader = form.teamleader_id.data
@@ -126,6 +129,22 @@ def editjob(id):
                            title='Edit job',
                            form=form
                            )
+
+
+@app.route('/deletejob/<int:id>', methods=['GET', 'POST'])
+@login_required
+def news_delete(id):
+    db_sess = db_session.create_session()
+    job = db_sess.query(Jobs).filter(Jobs.id == id,
+                                     (Jobs.team_leader == current_user.id) | (current_user.id == 1)
+                                     ).first()
+
+    if job:
+        db_sess.delete(job)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
 
 
 @app.route('/success')

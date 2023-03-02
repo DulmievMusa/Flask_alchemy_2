@@ -21,6 +21,16 @@
                 <td width="80px" height="30px" class="is_finished_info">{{job[4]}}</td>
             </tr>
         </table>
+        {% if job[5] %}
+            <div>
+                <a href="/editjob/{{ job[6] }}" class="btn btn-warning">
+                    Edit
+                </a>
+                <a href="/deletejob/{{ job[6] }}" class="btn btn-danger">
+                    Delete
+                </a>
+            </div>
+        {% endif %}
     {% endfor %}
 
 
