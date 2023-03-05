@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, request, abort
-from data import db_session
+from data import db_session, jobs_api
 from data.new_user import User
 from data.jobs import Jobs
 from forms.user import RegisterForm
@@ -23,6 +23,7 @@ def load_user(user_id):
 
 def main():
     db_session.global_init("db/blogs.db")
+    app.register_blueprint(jobs_api.blueprint)
     app.run(port=8080, host='127.0.0.1')
 
 
