@@ -10,6 +10,9 @@ blueprint = flask.Blueprint(
 )
 
 
+
+
+
 @blueprint.route('/api/jobs', methods=['GET'])
 def get_jobs():
     db_sess = db_session.create_session()
@@ -56,5 +59,16 @@ def create_job():
         is_finished=request.json['is_finished']
     )
     db_sess.add(job)
+    db_sess.commit()
+    return jsonify({'success': 'OK'})
+
+
+@blueprint.route('/api/jobs/<int:job_id>', methods=['DELETE'])
+def delete_news(job_id):
+    db_sess = db_session.create_session()
+    job = db_sess.query(Jobs).get(job_id)
+    if not job:
+        return jsonify({'error': 'Not found'})
+    db_sess.delete(job)
     db_sess.commit()
     return jsonify({'success': 'OK'})
