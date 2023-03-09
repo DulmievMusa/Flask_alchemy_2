@@ -10,9 +10,6 @@ blueprint = flask.Blueprint(
 )
 
 
-
-
-
 @blueprint.route('/api/jobs', methods=['GET'])
 def get_jobs():
     db_sess = db_session.create_session()
@@ -70,5 +67,24 @@ def delete_news(job_id):
     if not job:
         return jsonify({'error': 'Not found'})
     db_sess.delete(job)
+    db_sess.commit()
+    return jsonify({'success': 'OK'})
+
+
+@blueprint.route('/api/jobs', methods=['PUT'])
+def edit_job():
+    if not request.json:
+        return jsonify({'error': 'Empty request'})
+    elif not all(key in request.json for key in ['id']):
+        return jsonify({'error': 'Bad request'})
+    db_sess = db_session.create_session()
+    job = db_sess.query(Jobs).get(request.json['id'])
+    if not job:
+        return jsonify({'error': 'Not found'})
+    job.team_leader = request.json['team_leader'] if 'team_leader' in request.json.keys() else job.team_leader
+    job.job = request.json['job'] if 'job' in request.json.keys() else job.job
+    job.work_size = request.json['work_size'] if 'work_size' in request.json.keys() else job.work_size
+    job.collaborators = request.json['collaborators'] if 'collaborators' in request.json.keys() else job.collaborators
+    job.is_finished = request.json['is_finished'] if 'is_finished' in request.json.keys() else job.is_finished
     db_sess.commit()
     return jsonify({'success': 'OK'})
