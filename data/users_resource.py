@@ -28,6 +28,21 @@ class UsersResource(Resource):
         session.commit()
         return jsonify({'success': 'OK'})
 
+    def put(self, user_id):
+        abort_if_users_not_found(user_id)
+        args = parser.parse_args()
+        session = db_session.create_session()
+        user = session.query(User).filter(User.id == user_id).first()
+        user.surname = args['surname']
+        user.name = args['name']
+        user.age = args['age']
+        user.position = args['position']
+        user.speciality = args['speciality']
+        user.address = args['address']
+        user.email = args['email']
+        session.commit()
+        return jsonify({'success': 'OK'})
+
 
 class UsersListResource(Resource):
     def get(self):
